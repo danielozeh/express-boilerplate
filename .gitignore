@@ -1,6 +1,7 @@
+node_modules
 .env
 .env.dev
-node_modules
-package-lock.json
 .idea
+package-lock.json
 docs/
+responses/
