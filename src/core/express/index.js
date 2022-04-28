@@ -8,6 +8,7 @@ const helmet = require('helmet')
 
 const config = require('../../config')
 const router = require('../../routes')
+const subcriber = require('../pubsub/subscriber')
 
 const rawBodySaver = function (req, _res, buf, encoding) {
     if (buf && buf.length)req.rawBody = buf.toString(encoding || 'utf8');
@@ -28,6 +29,9 @@ const startAPI = () => {
             console.log(`API could not be start`, err)
             process.exit(-1)
         }
+        subcriber.waitForConnect(done => {
+            console.log('done connecting', done)
+        })
         //redisInstance()
         console.log('API started on ', config.port)
     })

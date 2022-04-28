@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const User = require('../models/user')
 const Verification = require('../models/verification')
 const responseHandler = require('../utils/response')
+const {publish} = require('../utils/publisher')
 
 
 /**
@@ -20,16 +21,30 @@ exports.register = async(req, res) => {
         //create a verification code
         const otp = await User.getOTP()
         await Verification.create({
-            user: user.id, code: otp, account, type: 'account_verification', expired_at: moment().add(1, 'hour')
+            user: user.id, code: otp, email, type: 'account_verification', expired_at: moment().add(1, 'hour')
         })
 
         //create a notofication and publish it to the queue
+        const notification = 'email'
+        const queueName = 'email.notification'
+        const qMessage = {
+            event: 'notification',
+            action: 'SEND_ACCOUNT_VERIFICATION',
+            data: {
+                notification,
+                to: email,
+                subject: 'Verify Your Account',
+                payload: {otp}
+            }
+        }
+        await publish(queueName, qMessage)
         return responseHandler.sendSuccess(res, {
             message: 'Account created successfully.',
             data: user
         })
     } catch(e) {
-        return responseHandler.internalServerError(e)
+        console.log(e.message)
+        return responseHandler.internalServerError(res)
     }
 }
 

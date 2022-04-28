@@ -6,7 +6,9 @@ module.exports = {
     secret: process.env.APP_SECRET,
     port: process.env.PORT,
     mongoURL: process.env.MONGO_URL,
-    amqp: {},
+    amqp: {
+        url: process.env.AMQP_URL  
+    },
     redis: {},
     imagePath: {},
 }
